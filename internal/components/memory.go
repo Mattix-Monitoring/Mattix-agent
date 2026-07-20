@@ -2,7 +2,7 @@ package components
 
 import (
 	"bufio"
-	"github.com/matesu777/Mafrana/pkg"
+	"github.com/matesu777/Mafrana/internal/utils"
 	"os"
 	"strings"
 )
@@ -27,7 +27,7 @@ func (m *Memory) Scan() error {
 
 		if strings.HasPrefix(line, "MemTotal:") {
 			fields := strings.Fields(line)
-			m.Total, err = pkg.ConvertToUnit64(fields[1])
+			m.Total, err = utils.ConvertToUnit64(fields[1])
 			if err != nil {
 				return err
 			}
@@ -35,7 +35,7 @@ func (m *Memory) Scan() error {
 
 		if strings.HasPrefix(line, "MemAvailable:") {
 			fields := strings.Fields(line)
-			m.Free, err = pkg.ConvertToUnit64(fields[1])
+			m.Free, err = utils.ConvertToUnit64(fields[1])
 			if err != nil {
 				return err
 			}

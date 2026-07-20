@@ -1,36 +1,36 @@
 package main
 
 import (
-	"fmt"
-	com "github.com/matesu777/Mafrana/internal/components"
+	"encoding/json"
 	"log"
+	"net/http"
 	"time"
+
+	"github.com/matesu777/Mafrana/internal/collector"
 )
 
 func main() {
-	teste()
-}
-
-func teste() {
-	var mem com.Memory
-
-	cpu := com.NewCpu()
-	var disk com.Disk
-
-	if err := mem.Scan(); err != nil {
-		log.Fatal(err)
-	}
-	if err := disk.Scan(); err != nil {
+	collector, err := collector.New()
+	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%+v\n", mem)
-	fmt.Printf("%+v\n", disk)
+	collector.Update()
 
-	cpu.Scan()
-	time.Sleep(time.Second)
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
 
-	cpu.Scan()
+	go func() {
+		for range ticker.C {
+			if err := collector.Update(); err != nil {
+				log.Println(err)
+			}
+		}
+	}()
 
-	fmt.Printf("usage: %.2f%% cores: %d\n", cpu.Usage, cpu.Cores)
+	http.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
+		json.NewEncoder(w).Encode(collector.Metrics)
+	})
+
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

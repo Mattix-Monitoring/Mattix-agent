@@ -2,7 +2,7 @@ package components
 
 import (
 	"bufio"
-	"github.com/matesu777/Mafrana/pkg"
+	"github.com/matesu777/Mafrana/internal/utils"
 	"os"
 	"runtime"
 	"strings"
@@ -37,35 +37,35 @@ func (c *CPU) Scan() error {
 
 	fields := strings.Fields(scanner.Text())
 
-	user, err := pkg.ConvertToUnit64(fields[1])
+	user, err := utils.ConvertToUnit64(fields[1])
 	if err != nil {
 		return err
 	}
-	nice, err := pkg.ConvertToUnit64(fields[2])
+	nice, err := utils.ConvertToUnit64(fields[2])
 	if err != nil {
 		return err
 	}
-	system, err := pkg.ConvertToUnit64(fields[3])
+	system, err := utils.ConvertToUnit64(fields[3])
 	if err != nil {
 		return err
 	}
-	idle, err := pkg.ConvertToUnit64(fields[4])
+	idle, err := utils.ConvertToUnit64(fields[4])
 	if err != nil {
 		return err
 	}
-	iowait, err := pkg.ConvertToUnit64(fields[5])
+	iowait, err := utils.ConvertToUnit64(fields[5])
 	if err != nil {
 		return err
 	}
-	irq, err := pkg.ConvertToUnit64(fields[6])
+	irq, err := utils.ConvertToUnit64(fields[6])
 	if err != nil {
 		return err
 	}
-	softirq, err := pkg.ConvertToUnit64(fields[7])
+	softirq, err := utils.ConvertToUnit64(fields[7])
 	if err != nil {
 		return err
 	}
-	steal, err := pkg.ConvertToUnit64(fields[8])
+	steal, err := utils.ConvertToUnit64(fields[8])
 	if err != nil {
 		return err
 	}

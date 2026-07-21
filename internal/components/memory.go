@@ -27,18 +27,20 @@ func (m *Memory) Scan() error {
 
 		if strings.HasPrefix(line, "MemTotal:") {
 			fields := strings.Fields(line)
-			m.Total, err = utils.ConvertToUnit64(fields[1])
+			total, err := utils.ConvertToUnit64(fields[1])
 			if err != nil {
 				return err
 			}
+			m.Total = total * 1024
 		}
 
 		if strings.HasPrefix(line, "MemAvailable:") {
 			fields := strings.Fields(line)
-			m.Free, err = utils.ConvertToUnit64(fields[1])
+			free, err := utils.ConvertToUnit64(fields[1])
 			if err != nil {
 				return err
 			}
+			m.Free = free * 1024
 		}
 	}
 

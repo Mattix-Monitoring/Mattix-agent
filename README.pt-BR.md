@@ -81,11 +81,9 @@ http://localhost:8080/metrics
 
 - [X] Goroutines
 - [X] Temperatura
-- [ ] Uso de CPU por núcleo
+- [X] Uso de CPU por núcleo
 - [ ] Múltiplos discos
 - [ ] Múltiplas interfaces de rede
-- [ ] Monitoramento de processos
-- [ ] Autenticação HTTP
 - [ ] Arquivo de configuração
 
 ---

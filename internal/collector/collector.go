@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/matesu777/Mattix/internal/components"
-	"github.com/matesu777/Mattix/internal/models"
+	"github.com/matesu777/Mattix/internal/components/cpu"
 )
 
 type Collector struct {
 	mu sync.RWMutex
 
-	Metrics models.Metrics
+	Metrics components.Metrics
 }
 
 func New() (*Collector, error) {
@@ -27,9 +27,9 @@ func New() (*Collector, error) {
 	}
 
 	return &Collector{
-		Metrics: models.Metrics{
+		Metrics: components.Metrics{
 			Hostname:    hostname,
-			CPU:         components.NewCpu(),
+			CPU:         cpu.NewCpu(),
 			Memory:      components.Memory{},
 			Disk:        components.Disk{},
 			Network:     network,
@@ -145,7 +145,7 @@ func (c *Collector) TemperatureUpdate() error {
 	return nil
 }
 
-func (c *Collector) GetMetrics() models.Metrics {
+func (c *Collector) GetMetrics() components.Metrics {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 

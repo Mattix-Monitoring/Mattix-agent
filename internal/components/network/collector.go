@@ -9,21 +9,6 @@ import (
 	"strings"
 )
 
-type Network struct {
-	Name string `json:"name"`
-	IPv4 string `json:"ipv4"`
-	MAC  string `json:"mac"`
-
-	RxBytes uint64 `json:"rx_bytes"`
-	TxBytes uint64 `json:"tx_bytes"`
-
-	RxSpeed uint64 `json:"rx_speed"`
-	TxSpeed uint64 `json:"tx_speed"`
-
-	prevRx uint64
-	prevTx uint64
-}
-
 func NewNetwork() (Network, error) {
 	iface, err := getDefaultInterface()
 	if err != nil {
@@ -82,7 +67,7 @@ func getDefaultInterface() (*net.Interface, error) {
 	return nil, fmt.Errorf("nenhuma interface de rede ativa encontrada")
 }
 
-func (n *Network) Scan() error {
+func (n *Network) Collector() error {
 	file, err := os.Open("/proc/net/dev")
 	if err != nil {
 		return err

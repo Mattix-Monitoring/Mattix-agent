@@ -7,13 +7,7 @@ import (
 	"strings"
 )
 
-type Memory struct {
-	Total uint64 `json:"total"`
-	Used  uint64 `json:"used"`
-	Free  uint64 `json:"free"`
-}
-
-func (m *Memory) Scan() error {
+func (m *Memory) Collector() error {
 	file, err := os.Open("/proc/meminfo")
 	if err != nil {
 		return err

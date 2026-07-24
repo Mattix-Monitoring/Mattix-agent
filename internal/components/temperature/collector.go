@@ -8,10 +8,6 @@ import (
 	"strings"
 )
 
-type Temperature struct {
-	Cpu uint64 `json:"cpu"`
-}
-
 func GetSensor() (string, error) {
 	entries, err := os.ReadDir("/sys/class/hwmon")
 	if err != nil {
@@ -36,7 +32,7 @@ func GetSensor() (string, error) {
 	return "", fmt.Errorf("cpu sensor not found")
 }
 
-func (t *Temperature) GetTemperature() error {
+func (t *Temperature) Collector() error {
 	sensorDir, err := GetSensor()
 	if err != nil {
 		return err

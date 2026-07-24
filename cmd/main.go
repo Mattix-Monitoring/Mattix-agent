@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	col, err := collector.New()
+	col, err := collector.NewCollector()
 	if err != nil {
 		log.Fatalf("Fatal error to initialize application: %v", err)
 	}

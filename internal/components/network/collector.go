@@ -1,147 +1,88 @@
 package network
 
 import (
-	"bufio"
 	"context"
-	"fmt"
 	"net"
-	"os"
-	"strconv"
-	"strings"
+
+	psnet "github.com/shirou/gopsutil/v4/net"
 )
 
-func NewCollector() (*Collector, error) {
-	iface, err := getDefaultInterface()
-	if err != nil {
-		return nil, err
+func NewCollector() *Collector {
+	return &Collector{
+		prev: make(map[string]Counter),
 	}
-
-	c := &Collector{
-		ifaceName: iface.Name,
-		mac:       iface.HardwareAddr.String(),
-	}
-
-	addrs, err := iface.Addrs()
-	if err == nil {
-		for _, addr := range addrs {
-			if ipNet, ok := addr.(*net.IPNet); ok {
-				if ip := ipNet.IP.To4(); ip != nil {
-					c.ipv4 = ip.String()
-					break
-				}
-			}
-		}
-	}
-
-	return c, nil
 }
 
 func (c *Collector) Name() string {
 	return "network"
 }
 
-func getDefaultInterface() (*net.Interface, error) {
-	interfaces, err := net.Interfaces()
+func (c *Collector) Collect(ctx context.Context) (any, error) {
+	interfaces, err := psnet.Interfaces()
 	if err != nil {
 		return nil, err
 	}
+
+	counters, err := psnet.IOCounters(true)
+	if err != nil {
+		return nil, err
+	}
+
+	counterMap := make(map[string]psnet.IOCountersStat)
+	for _, counter := range counters {
+		counterMap[counter.Name] = counter
+	}
+
+	var data []NetworkData
 
 	for _, iface := range interfaces {
-		if iface.Flags&net.FlagUp == 0 {
+		counter, ok := counterMap[iface.Name]
+		if !ok {
 			continue
 		}
 
-		if iface.Flags&net.FlagLoopback != 0 {
-			continue
+		network := NetworkData{
+			Name: iface.Name,
+			MAC:  iface.HardwareAddr,
 		}
 
-		addrs, err := iface.Addrs()
-		if err != nil || len(addrs) == 0 {
-			continue
-		}
+		// IPv4
+		for _, addr := range iface.Addrs {
+			if addr.Addr == "" {
+				continue
+			}
 
-		for _, addr := range addrs {
-			if ipNet, ok := addr.(*net.IPNet); ok {
-				if ipNet.IP.To4() != nil {
-					return &iface, nil
-				}
+			ip, _, err := net.ParseCIDR(addr.Addr)
+			if err != nil {
+				continue
+			}
+
+			if ipv4 := ip.To4(); ipv4 != nil {
+				network.IPv4 = ipv4.String()
+				break
 			}
 		}
+
+		network.RxBytes = counter.BytesRecv
+		network.TxBytes = counter.BytesSent
+
+		prev := c.prev[iface.Name]
+
+		if prev.Rx != 0 {
+			network.RxSpeed = counter.BytesRecv - prev.Rx
+		}
+
+		if prev.Tx != 0 {
+			network.TxSpeed = counter.BytesSent - prev.Tx
+		}
+
+		c.prev[iface.Name] = Counter{
+			Rx: counter.BytesRecv,
+			Tx: counter.BytesSent,
+		}
+
+		data = append(data, network)
 	}
 
-	return nil, fmt.Errorf("nenhuma interface de rede ativa encontrada")
-}
-
-func (c *Collector) Collect(ctx context.Context) (any, error) {
-	file, err := os.Open("/proc/net/dev")
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	data := NetworkData{
-		Name: c.ifaceName,
-		MAC:  c.mac,
-		IPv4: c.ipv4,
-	}
-
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-
-		if strings.HasPrefix(line, "Inter-") ||
-			strings.HasPrefix(line, "face") {
-			continue
-		}
-
-		parts := strings.Split(line, ":")
-		if len(parts) != 2 {
-			continue
-		}
-
-		iface := strings.TrimSpace(parts[0])
-
-		if iface != c.ifaceName {
-			continue
-		}
-
-		fields := strings.Fields(parts[1])
-
-		if len(fields) < 16 {
-			return nil, fmt.Errorf("formato inválido em /proc/net/dev")
-		}
-
-		rx, err := strconv.ParseUint(fields[0], 10, 64)
-		if err != nil {
-			return nil, err
-		}
-
-		tx, err := strconv.ParseUint(fields[8], 10, 64)
-		if err != nil {
-			return nil, err
-		}
-
-		data.RxBytes = rx
-		data.TxBytes = tx
-
-		if c.prevRx != 0 {
-			data.RxSpeed = rx - c.prevRx
-		}
-
-		if c.prevTx != 0 {
-			data.TxSpeed = tx - c.prevTx
-		}
-
-		c.prevRx = rx
-		c.prevTx = tx
-
-		return data, nil
-	}
-
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-
-	return nil, fmt.Errorf("Interface %s not found in /proc/net/dev", c.ifaceName)
+	return data, nil
 }

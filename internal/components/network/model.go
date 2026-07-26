@@ -13,9 +13,10 @@ type NetworkData struct {
 }
 
 type Collector struct {
-	ifaceName string
-	mac       string
-	ipv4      string
-	prevRx    uint64
-	prevTx    uint64
+	prev map[string]Counter
+}
+
+type Counter struct {
+	Rx uint64
+	Tx uint64
 }

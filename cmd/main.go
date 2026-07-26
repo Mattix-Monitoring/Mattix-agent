@@ -23,7 +23,7 @@ func main() {
 	diskColl := disk.NewCollector()
 	hostnameColl := hostname.NewCollector()
 	memoryColl := memory.NewCollector()
-	networkColl, _ := network.NewCollector()
+	networkColl := network.NewCollector()
 	temperatureColl := temperature.NewCollector()
 	uptimeColl := uptime.NewCollector()
 

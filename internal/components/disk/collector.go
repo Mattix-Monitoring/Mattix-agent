@@ -42,10 +42,13 @@ func (c *Collector) Collect(ctx context.Context) (any, error) {
 		}
 
 		disks = append(disks, DiskData{
-			MountPoint: partition.Mountpoint,
-			Total:      usage.Total,
-			Used:       usage.Used,
-			Free:       usage.Free,
+			Device:      partition.Device,
+			MountPoint:  partition.Mountpoint,
+			FsType:      partition.Fstype,
+			Total:       usage.Total,
+			Used:        usage.Used,
+			Free:        usage.Free,
+			UsedPercent: usage.UsedPercent,
 		})
 	}
 

@@ -10,7 +10,7 @@ import (
 func parseLine(fields []string) (CPUStat, error) {
 	values := make([]uint64, 8)
 
-	for i := 1; i <= 8; i++ {
+	for i := 2; i <= 8; i++ {
 
 		value, err := strconv.ParseUint(
 			fields[i],
@@ -46,7 +46,7 @@ func ParseCPUStat(path string) ([]CPUStat, error) {
 
 	defer file.Close()
 
-	var stats []CPUStat
+	stats := []CPUStat{}
 
 	scanner := bufio.NewScanner(file)
 

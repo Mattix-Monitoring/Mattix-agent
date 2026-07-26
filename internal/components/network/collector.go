@@ -2,6 +2,7 @@ package network
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -9,15 +10,15 @@ import (
 	"strings"
 )
 
-func NewNetwork() (Network, error) {
+func NewCollector() (*Collector, error) {
 	iface, err := getDefaultInterface()
 	if err != nil {
-		return Network{}, err
+		return nil, err
 	}
 
-	network := Network{
-		Name: iface.Name,
-		MAC:  iface.HardwareAddr.String(),
+	c := &Collector{
+		ifaceName: iface.Name,
+		mac:       iface.HardwareAddr.String(),
 	}
 
 	addrs, err := iface.Addrs()
@@ -25,14 +26,18 @@ func NewNetwork() (Network, error) {
 		for _, addr := range addrs {
 			if ipNet, ok := addr.(*net.IPNet); ok {
 				if ip := ipNet.IP.To4(); ip != nil {
-					network.IPv4 = ip.String()
+					c.ipv4 = ip.String()
 					break
 				}
 			}
 		}
 	}
 
-	return network, nil
+	return c, nil
+}
+
+func (c *Collector) Name() string {
+	return "network"
 }
 
 func getDefaultInterface() (*net.Interface, error) {
@@ -67,12 +72,18 @@ func getDefaultInterface() (*net.Interface, error) {
 	return nil, fmt.Errorf("nenhuma interface de rede ativa encontrada")
 }
 
-func (n *Network) Collector() error {
+func (c *Collector) Collect(ctx context.Context) (any, error) {
 	file, err := os.Open("/proc/net/dev")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer file.Close()
+
+	data := NetworkData{
+		Name: c.ifaceName,
+		MAC:  c.mac,
+		IPv4: c.ipv4,
+	}
 
 	scanner := bufio.NewScanner(file)
 
@@ -91,42 +102,46 @@ func (n *Network) Collector() error {
 
 		iface := strings.TrimSpace(parts[0])
 
-		if iface != n.Name {
+		if iface != c.ifaceName {
 			continue
 		}
 
 		fields := strings.Fields(parts[1])
 
 		if len(fields) < 16 {
-			return fmt.Errorf("formato inválido em /proc/net/dev")
+			return nil, fmt.Errorf("formato inválido em /proc/net/dev")
 		}
 
 		rx, err := strconv.ParseUint(fields[0], 10, 64)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		tx, err := strconv.ParseUint(fields[8], 10, 64)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		n.RxBytes = rx
-		n.TxBytes = tx
+		data.RxBytes = rx
+		data.TxBytes = tx
 
-		if n.prevRx != 0 {
-			n.RxSpeed = rx - n.prevRx
+		if c.prevRx != 0 {
+			data.RxSpeed = rx - c.prevRx
 		}
 
-		if n.prevTx != 0 {
-			n.TxSpeed = tx - n.prevTx
+		if c.prevTx != 0 {
+			data.TxSpeed = tx - c.prevTx
 		}
 
-		n.prevRx = rx
-		n.prevTx = tx
+		c.prevRx = rx
+		c.prevTx = tx
 
-		return nil
+		return data, nil
 	}
 
-	return scanner.Err()
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	return nil, fmt.Errorf("Interface %s not found in /proc/net/dev", c.ifaceName)
 }

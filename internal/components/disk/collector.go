@@ -1,24 +1,34 @@
 package disk
 
 import (
+	"context"
 	"golang.org/x/sys/unix"
 )
 
-func (d *Disk) Collect() error {
+func NewCollector() *Collector {
+	return &Collector{}
+}
+
+func (c *Collector) Name() string {
+	return "disk"
+}
+
+func (c *Collector) Collect(ctx context.Context) (any, error) {
 	var stat unix.Statfs_t
 
 	err := unix.Statfs("/", &stat)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	total := stat.Blocks * uint64(stat.Bsize)
 	free := stat.Bavail * uint64(stat.Bsize)
-	used := total - free
 
-	d.Total = total
-	d.Free = free
-	d.Used = used
+	data := DiskData{
+		Total: total,
+		Free:  free,
+		Used:  total - free,
+	}
 
-	return nil
+	return data, nil
 }

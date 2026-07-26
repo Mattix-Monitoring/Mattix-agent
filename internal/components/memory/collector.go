@@ -2,48 +2,69 @@ package memory
 
 import (
 	"bufio"
+	"context"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func (m *Memory) Collector() error {
+func NewCollector() *Collector {
+	return &Collector{}
+}
+
+func (c *Collector) Name() string {
+	return "memory"
+}
+
+func (c *Collector) Collect(ctx context.Context) (any, error) {
 	file, err := os.Open("/proc/meminfo")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
+
+	var total, free uint64
+	var foundTotal, foundFree bool
 
 	for scanner.Scan() {
 		line := scanner.Text()
 
 		if strings.HasPrefix(line, "MemTotal:") {
 			fields := strings.Fields(line)
-			total, err := strconv.ParseUint(fields[1], 10, 64)
-
+			val, err := strconv.ParseUint(fields[1], 10, 64)
 			if err != nil {
-				return err
+				return nil, err
 			}
-			m.Total = total * 1024
+			total = val * 1024
+			foundTotal = true
+
+		} else if strings.HasPrefix(line, "MemAvailable:") {
+			fields := strings.Fields(line)
+			val, err := strconv.ParseUint(fields[1], 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			free = val * 1024
+			foundFree = true
+
 		}
 
-		if strings.HasPrefix(line, "MemAvailable:") {
-			fields := strings.Fields(line)
-			free, err := strconv.ParseUint(fields[1], 10, 64)
-			if err != nil {
-				return err
-			}
-			m.Free = free * 1024
+		if foundTotal && foundFree {
+			break
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		return err
+		return nil, err
 	}
 
-	m.Used = m.Total - m.Free
+	data := MemoryData{
+		Total: total,
+		Free:  free,
+		Used:  total - free,
+	}
 
-	return nil
+	return data, nil
 }

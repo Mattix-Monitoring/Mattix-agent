@@ -1,12 +1,21 @@
 package temperature
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 )
+
+func NewCollector() *Collector {
+	return &Collector{}
+}
+
+func (c *Collector) Name() string {
+	return "temperature"
+}
 
 func GetSensor() (string, error) {
 	entries, err := os.ReadDir("/sys/class/hwmon")
@@ -32,10 +41,10 @@ func GetSensor() (string, error) {
 	return "", fmt.Errorf("cpu sensor not found")
 }
 
-func (t *Temperature) Collector() error {
+func (c *Collector) Collect(ctx context.Context) (any, error) {
 	sensorDir, err := GetSensor()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	for i := 1; ; i++ {
@@ -54,17 +63,19 @@ func (t *Temperature) Collector() error {
 
 		tempBytes, err := os.ReadFile(inputPath)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		temp, err := strconv.ParseUint(strings.TrimSpace(string(tempBytes)), 10, 64)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		t.Cpu = temp
-		return nil
+		data := &TemperatureData{
+			CpuTemp: temp,
+		}
+		return data, nil
 	}
 
-	return fmt.Errorf("package temperature not found")
+	return nil, fmt.Errorf("package temperature not found")
 }

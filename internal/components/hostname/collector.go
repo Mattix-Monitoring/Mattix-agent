@@ -1,8 +1,19 @@
 package hostname
 
-import "os"
+import (
+	"context"
+	"os"
+)
 
-func Collector() (string, error) {
+func NewCollector() *Collector {
+	return &Collector{}
+}
+
+func (c *Collector) Name() string {
+	return "hostname"
+}
+
+func (c *Collector) Collect(ctx context.Context) (any, error) {
 	hostname, err := os.Hostname()
 	if err != nil {
 		return "", err

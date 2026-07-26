@@ -2,12 +2,21 @@ package uptime
 
 import (
 	"bufio"
+	"context"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func Collector() (uint64, error) {
+func NewCollector() *Collector {
+	return &Collector{}
+}
+
+func (c *Collector) Name() string {
+	return "uptime"
+}
+
+func (c *Collector) Collect(ctx context.Context) (any, error) {
 	file, err := os.Open("/proc/uptime")
 	if err != nil {
 		return 0, err

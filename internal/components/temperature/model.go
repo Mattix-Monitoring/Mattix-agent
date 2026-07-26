@@ -1,5 +1,7 @@
 package temperature
 
-type Temperature struct {
-	Cpu uint64 `json:"cpu"`
+type TemperatureData struct {
+	CpuTemp uint64 `json:"cpu"`
 }
+
+type Collector struct{}

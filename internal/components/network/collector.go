@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 	"net"
+	"strings"
 
 	psnet "github.com/shirou/gopsutil/v4/net"
 )
@@ -38,6 +39,12 @@ func (c *Collector) Collect(ctx context.Context) (any, error) {
 	for _, iface := range interfaces {
 		counter, ok := counterMap[iface.Name]
 		if !ok {
+			continue
+		}
+		if iface.Name == "lo" ||
+			strings.HasPrefix(iface.Name, "docker") ||
+			strings.HasPrefix(iface.Name, "br-") ||
+			strings.HasPrefix(iface.Name, "veth") {
 			continue
 		}
 

@@ -162,7 +162,7 @@ http://localhost:8080/metrics
 - [X] Temperature
 - [X] Per-core CPU usage
 - [X] Multiple disks
-- [ ] Multiple network interfaces
+- [X] Multiple network interfaces
 - [ ] Configuration file
 
 ---

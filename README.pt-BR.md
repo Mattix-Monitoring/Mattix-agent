@@ -161,7 +161,7 @@ http://localhost:8080/metrics
 - [X] Temperatura
 - [X] Uso de CPU por núcleo
 - [X] Múltiplos discos
-- [ ] Múltiplas interfaces de rede
+- [X] Múltiplas interfaces de rede
 - [ ] Arquivo de configuração
 
 ---

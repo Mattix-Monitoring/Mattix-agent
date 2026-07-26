@@ -1,0 +1,22 @@
+server:
+  address: "0.0.0.0"
+  port: 8080
+
+intervals:
+  fast: 1 # second
+  slow: 1 # minute
+
+disk:
+  ignore_fs:
+    - tmpfs
+    - proc
+    - sysfs
+    - overlay
+    - squashfs
+
+network:
+  ignore_interfaces:
+    - lo
+    - docker*
+    - br-*
+    - veth*

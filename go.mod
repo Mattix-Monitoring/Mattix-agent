@@ -2,7 +2,11 @@ module github.com/matesu777/Mattix
 
 go 1.26.5
 
-require github.com/shirou/gopsutil/v4 v4.26.6
+require (
+	github.com/adrg/xdg v0.5.3
+	github.com/shirou/gopsutil/v4 v4.26.6
+	gopkg.in/yaml.v3 v3.0.1
+)
 
 require (
 	github.com/ebitengine/purego v0.10.0 // indirect

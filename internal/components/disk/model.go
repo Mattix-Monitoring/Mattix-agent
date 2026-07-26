@@ -7,7 +7,7 @@ type DiskData struct {
 	Total       uint64  `json:"total"`
 	Free        uint64  `json:"free"`
 	Used        uint64  `json:"used"`
-	UsedPercent float64 `json:"usedPercent"`
+	UsedPercent float64 `json:"used_percent"`
 }
 
 type Collector struct{}

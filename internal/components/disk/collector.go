@@ -2,7 +2,8 @@ package disk
 
 import (
 	"context"
-	"golang.org/x/sys/unix"
+
+	"github.com/shirou/gopsutil/v4/disk"
 )
 
 func NewCollector() *Collector {
@@ -14,21 +15,39 @@ func (c *Collector) Name() string {
 }
 
 func (c *Collector) Collect(ctx context.Context) (any, error) {
-	var stat unix.Statfs_t
-
-	err := unix.Statfs("/", &stat)
+	partitions, err := disk.Partitions(false)
 	if err != nil {
 		return nil, err
 	}
 
-	total := stat.Blocks * uint64(stat.Bsize)
-	free := stat.Bavail * uint64(stat.Bsize)
-
-	data := DiskData{
-		Total: total,
-		Free:  free,
-		Used:  total - free,
+	var disks []DiskData
+	skip := map[string]struct{}{
+		"tmpfs":    {},
+		"devtmpfs": {},
+		"proc":     {},
+		"sysfs":    {},
+		"overlay":  {},
+		"squashfs": {},
+		"cgroup":   {},
+		"cgroup2":  {},
 	}
 
-	return data, nil
+	for _, partition := range partitions {
+		usage, err := disk.Usage(partition.Mountpoint)
+		if err != nil {
+			continue
+		}
+		if _, ok := skip[partition.Fstype]; ok {
+			continue
+		}
+
+		disks = append(disks, DiskData{
+			MountPoint: partition.Mountpoint,
+			Total:      usage.Total,
+			Used:       usage.Used,
+			Free:       usage.Free,
+		})
+	}
+
+	return disks, nil
 }

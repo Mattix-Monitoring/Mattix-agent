@@ -16,7 +16,7 @@ Ele foi criado como um projeto de aprendizado inspirado em ferramentas como o **
 - Tempo de atividade do sistema (Uptime)
 - API HTTP JSON
 - Leve
-- Zero dependências externas (exceto gopsutil/v4/disk)
+- Zero dependências externas (exceto gopsutil/v4)
 
 ## Exemplo
 

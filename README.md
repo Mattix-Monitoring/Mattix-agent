@@ -16,7 +16,7 @@ It was created as a learning project inspired by tools like **Node Exporter** an
 - System uptime
 - JSON HTTP API
 - Lightweight
-- Zero external dependencies (except gopsutil/v4/disk)
+- Zero external dependencies (except gopsutil/v4)
 
 ## Example
 

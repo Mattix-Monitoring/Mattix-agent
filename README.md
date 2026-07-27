@@ -11,12 +11,16 @@ It was created as a learning project inspired by tools like **Node Exporter** an
 - CPU usage
 - Memory usage
 - Disk usage
+- Temperature
 - Network statistics
 - Hostname
+- Per-core CPU usage
+- Multiple disks
+- Multiple network interfaces
+- Configuration file
 - System uptime
 - JSON HTTP API
 - Lightweight
-- Zero external dependencies (except gopsutil/v4)
 
 ## Example
 
@@ -83,25 +87,25 @@ It was created as a learning project inspired by tools like **Node Exporter** an
     },
     "disk": [
       {
-        "mouint_point": "/",
+        "mount_point": "/",
         "total": 64424509440,
         "free": 13891784704,
         "used": 49618415616
       },
       {
-        "mouint_point": "/home",
+        "mount_point": "/home",
         "total": 333063389184,
         "free": 141015748608,
         "used": 189572739072
       },
       {
-        "mouint_point": "/boot",
+        "mount_point": "/boot",
         "total": 205520896,
         "free": 41578496,
         "used": 163942400
       },
       {
-        "mouint_point": "/boot/efi",
+        "mount_point": "/boot/efi",
         "total": 205520896,
         "free": 41578496,
         "used": 163942400
@@ -128,42 +132,18 @@ It was created as a learning project inspired by tools like **Node Exporter** an
 }
 ```
 
-## Running
+## Installation
 
 ```bash
-git clone https://github.com/matesu777/Mattix-agent
-
-cd Mattix-agent
-
-go run .
+curl -fsSL https://raw.githubusercontent.com/Mattix-Monitoring/Mattix-agent/main/scripts/install.sh | bash
 ```
 
 
 The API will be available at
 
 ```
-http://localhost:8080/metrics
+/metrics
 ```
-
----
-
-## Roadmap
-
-- [x] CPU monitoring
-- [x] Memory monitoring
-- [x] Disk monitoring
-- [x] Network monitoring
-- [x] Hostname
-- [x] Uptime
-
-### Next
-
-- [X] Goroutines
-- [X] Temperature
-- [X] Per-core CPU usage
-- [X] Multiple disks
-- [X] Multiple network interfaces
-- [X] Configuration file
 
 ---
 

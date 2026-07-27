@@ -1,22 +1,26 @@
 # Mattix-Agent
 
-> Um agente de monitoramento de sistema leve escrito em Go
+> Um agente leve de monitoramento de sistemas escrito em Go
 
-O Mattix é um agente de monitoramento simples, rápido e para plataformas Linux, projetado para coletar métricas do sistema e expô-las através de uma API HTTP.
+O Mattix é um agente de monitoramento simples, rápido e voltado para Linux, projetado para coletar métricas do sistema e disponibilizá-las por meio de uma API HTTP.
 
-Ele foi criado como um projeto de aprendizado inspirado em ferramentas como o **Node Exporter** e o **Zabbix Agent**, focando em simplicidade, e baixo uso de recursos.
+Ele foi criado como um projeto de aprendizado inspirado em ferramentas como **Node Exporter** e **Zabbix Agent**, com foco em simplicidade, desempenho e baixo consumo de recursos.
 
 ## Funcionalidades
 
-- Uso de CPU
-- Uso de memória
+- Uso da CPU
+- Uso da memória
 - Uso de disco
+- Temperatura da CPU
 - Estatísticas de rede
-- Nome do host (Hostname)
-- Tempo de atividade do sistema (Uptime)
-- API HTTP JSON
-- Leve
-- Zero dependências externas (exceto gopsutil/v4)
+- Hostname
+- Uso da CPU por núcleo
+- Suporte a múltiplos discos
+- Suporte a múltiplas interfaces de rede
+- Arquivo de configuração
+- Tempo de atividade (uptime)
+- API HTTP em JSON
+- Leve e eficiente
 
 ## Exemplo
 
@@ -83,25 +87,25 @@ Ele foi criado como um projeto de aprendizado inspirado em ferramentas como o **
     },
     "disk": [
       {
-        "mouint_point": "/",
+        "mount_point": "/",
         "total": 64424509440,
         "free": 13891784704,
         "used": 49618415616
       },
       {
-        "mouint_point": "/home",
+        "mount_point": "/home",
         "total": 333063389184,
         "free": 141015748608,
         "used": 189572739072
       },
       {
-        "mouint_point": "/boot",
+        "mount_point": "/boot",
         "total": 205520896,
         "free": 41578496,
         "used": 163942400
       },
       {
-        "mouint_point": "/boot/efi",
+        "mount_point": "/boot/efi",
         "total": 205520896,
         "free": 41578496,
         "used": 163942400
@@ -128,44 +132,21 @@ Ele foi criado como um projeto de aprendizado inspirado em ferramentas como o **
 }
 ```
 
-## Executando
+## Instalação
 
 ```bash
-git clone https://github.com/matesu777/Mattix-agent
-
-cd Mattix-agent
-
-go run .
+curl -fsSL https://raw.githubusercontent.com/Mattix-Monitoring/Mattix-agent/main/scripts/install.sh | bash
 ```
 
-A API estará disponível em
+A API ficará disponível em:
 
 ```
-http://localhost:8080/metrics
+/metrics
 ```
 
 ---
 
-## Roteiro (Roadmap)
+### Idiomas
 
-- [x] Monitoramento de CPU
-- [x] Monitoramento de memória
-- [x] Monitoramento de disco
-- [x] Monitoramento de rede
-- [x] Nome do host (Hostname)
-- [x] Tempo de atividade (Uptime)
-
-### Próximos passos
-
-- [X] Goroutines
-- [X] Temperatura
-- [X] Uso de CPU por núcleo
-- [X] Múltiplos discos
-- [X] Múltiplas interfaces de rede
-- [X] Arquivo de configuração
-
----
-
-### Languages 
-- [Portuguese](/README.pt-BR.md)
+- [Português](/README.pt-BR.md)
 - [English](/README.md)

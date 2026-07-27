@@ -19,7 +19,7 @@ import (
 	"github.com/matesu777/Mattix/internal/collector"
 )
 
-const version = "0.1.5"
+const version = "1.0.0"
 
 func main() {
 	cfg, err := config.Load()
@@ -71,7 +71,7 @@ func main() {
 
 func printBanner(version string, hostname any, cfg *config.Config) {
 	fmt.Printf(
-		`Mattix Agent %s
+		`Mattix Agent v%s
 --------------------------
 %-12s %s
 %-12s :%d

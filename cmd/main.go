@@ -76,7 +76,7 @@ func printBanner(version string, hostname any, cfg *config.Config) {
 %-12s %s
 %-12s :%d
 --------------------------
-		`,
+`,
 		version,
 		"Hostname", hostname,
 		"Port", cfg.Server.Port,

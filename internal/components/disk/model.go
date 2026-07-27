@@ -2,7 +2,7 @@ package disk
 
 type DiskData struct {
 	Device      string  `json:"device"`
-	MountPoint  string  `json:"mouint_point"`
+	MountPoint  string  `json:"mount_point"`
 	FsType      string  `json:"fsType"`
 	Total       uint64  `json:"total"`
 	Free        uint64  `json:"free"`

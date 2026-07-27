@@ -3,8 +3,8 @@ server:
   port: 8080
 
 intervals:
-  fast: 1 # second
-  slow: 1 # minute
+  fast: 1s
+  slow: 1m
 
 disk:
   ignore_fs:

@@ -3,21 +3,29 @@ package config
 import "time"
 
 type Config struct {
-	Server struct {
-		Address string `yaml:"address"`
-		Port    int    `yaml:"port"`
-	} `yaml:"server"`
+	Server ServerConfig `yaml:"server"`
 
-	Interval struct {
-		Fast time.Duration `yaml:"fast"`
-		Slow time.Duration `yaml:"slow"`
-	} `yaml:"interval"`
+	Interval IntervalConfig `yaml:"interval"`
 
-	Disk struct {
-		IgnoreFS []string `yaml:"ignore_fs"`
-	} `yaml:"disk"`
+	Disk DiskConfig `yaml:"disk"`
 
-	Network struct {
-		IgnoreInterfaces []string `yaml:"ignore_interfaces"`
-	} `yaml:"network"`
+	Network NetworkConfig `yaml:"network"`
+}
+
+type ServerConfig struct {
+	Address string `yaml:"address"`
+	Port    int    `yaml:"port"`
+}
+
+type IntervalConfig struct {
+	Fast time.Duration `yaml:"fast"`
+	Slow time.Duration `yaml:"slow"`
+}
+
+type DiskConfig struct {
+	IgnoreFS []string `yaml:"ignore_fs"`
+}
+
+type NetworkConfig struct {
+	IgnoreInterfaces []string `yaml:"ignore_interfaces"`
 }

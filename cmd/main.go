@@ -13,17 +13,25 @@ import (
 	"github.com/matesu777/Mattix/internal/components/network"
 	"github.com/matesu777/Mattix/internal/components/temperature"
 	"github.com/matesu777/Mattix/internal/components/uptime"
+	"github.com/matesu777/Mattix/internal/config"
 	mattixhttp "github.com/matesu777/Mattix/internal/http"
 
 	"github.com/matesu777/Mattix/internal/collector"
 )
 
+const version = "0.1.5"
+
 func main() {
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("Error load configs: %s", err)
+	}
+
 	cpuColl := cpu.NewCollector()
-	diskColl := disk.NewCollector()
+	diskColl := disk.NewCollector(&cfg.Disk)
 	hostnameColl := hostname.NewCollector()
 	memoryColl := memory.NewCollector()
-	networkColl := network.NewCollector()
+	networkColl := network.NewCollector(&cfg.Network)
 	temperatureColl := temperature.NewCollector()
 	uptimeColl := uptime.NewCollector()
 
@@ -40,18 +48,37 @@ func main() {
 		hostnameColl,
 	}
 
-	manager := collector.NewManager(fastComponents, slowComponents)
+	manager := collector.NewManager(fastComponents, slowComponents, &cfg.Interval)
 	ctx := context.Background()
 
 	manager.Start(ctx)
-	handler := mattixhttp.ServerNew(manager)
+	handler := mattixhttp.ServerNew(&cfg.Server, manager)
 
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /metrics", handler.GetMetrics)
-	hostname, _ := hostnameColl.Collect(ctx)
+	hostname, err := hostnameColl.Collect(ctx)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	fmt.Printf("Mattix agent v0.1.0 \n\nhostname: %s \nlistening on: 8080\n", hostname)
+	printBanner(version, hostname, cfg)
 
-	log.Fatal(http.ListenAndServe(":8080", mattixhttp.Cors(mux)))
+	port := fmt.Sprintf(":%d", cfg.Server.Port)
+
+	log.Fatal(http.ListenAndServe(port, mattixhttp.Cors(mux)))
+}
+
+func printBanner(version string, hostname any, cfg *config.Config) {
+	fmt.Printf(
+		`Mattix Agent %s
+--------------------------
+%-12s %s
+%-12s :%d
+--------------------------
+		`,
+		version,
+		"Hostname", hostname,
+		"Port", cfg.Server.Port,
+	)
 }

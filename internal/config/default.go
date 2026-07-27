@@ -17,8 +17,8 @@ func Default() Config {
 			Fast time.Duration "yaml:\"fast\""
 			Slow time.Duration "yaml:\"slow\""
 		}{
-			Fast: 1,
-			Slow: 1,
+			Fast: time.Second,
+			Slow: time.Minute,
 		},
 		Disk: struct {
 			IgnoreFS []string "yaml:\"ignore_fs\""

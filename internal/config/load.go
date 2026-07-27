@@ -8,6 +8,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+func NewConfig() *Config {
+	return &Config{}
+}
+
 func XDGPath() string {
 	return filepath.Join(xdg.ConfigHome, "mattix", "config.yaml")
 }

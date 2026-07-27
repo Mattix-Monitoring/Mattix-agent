@@ -13,7 +13,8 @@ type NetworkData struct {
 }
 
 type Collector struct {
-	prev map[string]Counter
+	prev             map[string]Counter
+	ignoreInterfaces map[string]struct{}
 }
 
 type Counter struct {

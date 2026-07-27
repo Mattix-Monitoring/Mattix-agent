@@ -3,12 +3,17 @@ package network
 import (
 	"context"
 	"net"
-	"strings"
 
+	"github.com/matesu777/Mattix/internal/config"
 	psnet "github.com/shirou/gopsutil/v4/net"
 )
 
-func NewCollector() *Collector {
+func NewCollector(cfg *config.NetworkConfig) *Collector {
+	ignore := make(map[string]struct{}, len(cfg.IgnoreInterfaces))
+
+	for _, inter := range cfg.IgnoreInterfaces {
+		ignore[inter] = struct{}{}
+	}
 	return &Collector{
 		prev: make(map[string]Counter),
 	}
@@ -41,10 +46,7 @@ func (c *Collector) Collect(ctx context.Context) (any, error) {
 		if !ok {
 			continue
 		}
-		if iface.Name == "lo" ||
-			strings.HasPrefix(iface.Name, "docker") ||
-			strings.HasPrefix(iface.Name, "br-") ||
-			strings.HasPrefix(iface.Name, "veth") {
+		if c.ignored(iface.Name) {
 			continue
 		}
 
@@ -92,4 +94,9 @@ func (c *Collector) Collect(ctx context.Context) (any, error) {
 	}
 
 	return data, nil
+}
+
+func (c *Collector) ignored(inter string) bool {
+	_, ok := c.ignoreInterfaces[inter]
+	return ok
 }

@@ -3,11 +3,20 @@ package disk
 import (
 	"context"
 
+	"github.com/matesu777/Mattix/internal/config"
 	"github.com/shirou/gopsutil/v4/disk"
 )
 
-func NewCollector() *Collector {
-	return &Collector{}
+func NewCollector(cfg *config.DiskConfig) *Collector {
+	ignore := make(map[string]struct{}, len(cfg.IgnoreFS))
+
+	for _, fs := range cfg.IgnoreFS {
+		ignore[fs] = struct{}{}
+	}
+
+	return &Collector{
+		ignoreFS: ignore,
+	}
 }
 
 func (c *Collector) Name() string {
@@ -21,23 +30,13 @@ func (c *Collector) Collect(ctx context.Context) (any, error) {
 	}
 
 	var disks []DiskData
-	skip := map[string]struct{}{
-		"tmpfs":    {},
-		"devtmpfs": {},
-		"proc":     {},
-		"sysfs":    {},
-		"overlay":  {},
-		"squashfs": {},
-		"cgroup":   {},
-		"cgroup2":  {},
-	}
 
 	for _, partition := range partitions {
 		usage, err := disk.Usage(partition.Mountpoint)
 		if err != nil {
 			continue
 		}
-		if _, ok := skip[partition.Fstype]; ok {
+		if c.ignored(partition.Fstype) {
 			continue
 		}
 
@@ -53,4 +52,9 @@ func (c *Collector) Collect(ctx context.Context) (any, error) {
 	}
 
 	return disks, nil
+}
+
+func (c *Collector) ignored(fs string) bool {
+	_, ok := c.ignoreFS[fs]
+	return ok
 }

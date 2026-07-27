@@ -5,6 +5,8 @@ import (
 	"log"
 	"sync"
 	"time"
+
+	"github.com/matesu777/Mattix/internal/config"
 )
 
 type Component interface {
@@ -15,13 +17,15 @@ type Component interface {
 type Manager struct {
 	mu sync.RWMutex
 
+	config         *config.IntervalConfig
 	metrics        map[string]any
 	fastComponents []Component
 	slowComponents []Component
 }
 
-func NewManager(fast []Component, slow []Component) *Manager {
+func NewManager(fast []Component, slow []Component, cfg *config.IntervalConfig) *Manager {
 	return &Manager{
+		config:         cfg,
 		metrics:        make(map[string]any),
 		fastComponents: fast,
 		slowComponents: slow,
@@ -32,8 +36,8 @@ func (m *Manager) Start(ctx context.Context) {
 	m.collectBatch(ctx, m.fastComponents)
 	m.collectBatch(ctx, m.slowComponents)
 
-	go m.runLoop(ctx, m.fastComponents, time.Second)
-	go m.runLoop(ctx, m.slowComponents, time.Minute)
+	go m.runLoop(ctx, m.fastComponents, m.config.Fast)
+	go m.runLoop(ctx, m.slowComponents, m.config.Slow)
 }
 
 func (m *Manager) runLoop(ctx context.Context, comps []Component, interval time.Duration) {

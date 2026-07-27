@@ -10,4 +10,6 @@ type DiskData struct {
 	UsedPercent float64 `json:"used_percent"`
 }
 
-type Collector struct{}
+type Collector struct {
+	ignoreFS map[string]struct{}
+}

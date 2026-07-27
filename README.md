@@ -163,7 +163,7 @@ http://localhost:8080/metrics
 - [X] Per-core CPU usage
 - [X] Multiple disks
 - [X] Multiple network interfaces
-- [ ] Configuration file
+- [X] Configuration file
 
 ---
 
